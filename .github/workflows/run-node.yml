@@ -1,35 +1,41 @@
-name: Node JS Video Downloader
+name: Global Auto Post (TikTok & Facebook)
 
 on:
   workflow_dispatch:
 
 jobs:
-  run-extractor:
+  post_job:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
-      - name: Install FFmpeg # إضافة هذه الخطوة ضرورية لدمج الفيديو
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      - name: Install yt-dlp
+      - name: Install Dependencies
         run: |
-          sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
-          sudo chmod a+rx /usr/local/bin/yt-dlp
+          npm install axios puppeteer-extra puppeteer-extra-plugin-stealth puppeteer
+          npx puppeteer browsers install chrome
 
-      - name: Run Script
-        run: node index.js
+      - name: Run TikTok Upload
+        env:
+          TIKTOK_COOKIES: ${{ secrets.TIKTOK_COOKIES }}
+        run: node upload.js
 
-      # خطوة إضافية: لكي ترى الملف الناتج في GitHub وتستطيع تحميله
-      - name: Upload Video Artifact
+      - name: Run Facebook Upload
+        env:
+          FACEBOOK_COOKIES: ${{ secrets.FACEBOOK_COOKIES }}
+        run: node facebook_upload.js
+
+      - name: Upload Results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: my-video-file
-          path: video_to_upload.mp4
+          name: post-reports
+          path: |
+            final-result.png
+            facebook-result.png
+            *-error.png
