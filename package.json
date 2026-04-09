@@ -1,9 +1,19 @@
 {
-  "name": "dailymotion-extractor",
+  "name": "kiro-zozo-auto-post",
   "version": "1.0.0",
-  "description": "Extract direct link from Dailymotion",
-  "main": "index.js",
+  "description": "Automated video uploader for TikTok and Facebook Meta Business Suite",
+  "main": "upload.js",
+  "scripts": {
+    "start": "node upload.js",
+    "facebook": "node facebook_upload.js"
+  },
   "dependencies": {
-    "axios": "^1.6.0"
+    "axios": "^1.6.2",
+    "puppeteer": "^21.11.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
