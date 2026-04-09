@@ -1,41 +1,60 @@
-name: Global Auto Post (TikTok & Facebook)
+name: Kiro Zozo Multi-Platform Uploader
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # تشغيل يدوي
 
 jobs:
-  post_job:
+  upload_job:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      # 1. جلب الكود
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      # 2. إعداد Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      # 3. نظام الكاش الذكي للمكتبات
+      - name: Cache Node Modules
+        id: cache-npm
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # 4. تثبيت المكتبات والمتصفح (فقط إذا تغير الـ package.json)
       - name: Install Dependencies
         run: |
-          npm install axios puppeteer-extra puppeteer-extra-plugin-stealth puppeteer
+          npm install --no-audit --no-fund
           npx puppeteer browsers install chrome
 
-      - name: Run TikTok Upload
+      # 5. تشغيل رفع تيك توك
+      - name: Run TikTok Uploader
         env:
           TIKTOK_COOKIES: ${{ secrets.TIKTOK_COOKIES }}
         run: node upload.js
 
-      - name: Run Facebook Upload
+      # 6. تشغيل رفع فيسبوك (Meta Business Suite)
+      - name: Run Facebook Uploader
         env:
           FACEBOOK_COOKIES: ${{ secrets.FACEBOOK_COOKIES }}
         run: node facebook_upload.js
 
-      - name: Upload Results
+      # 7. حفظ النتائج والصور من المنصتين
+      - name: Upload Execution Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: post-reports
+          name: upload-reports
           path: |
             final-result.png
-            facebook-result.png
-            *-error.png
+            facebook-final-check.png
+            error-screenshot.png
+            facebook-error-log.png
+          retention-days: 3
