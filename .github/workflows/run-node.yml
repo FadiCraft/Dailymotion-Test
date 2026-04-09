@@ -1,7 +1,7 @@
-name: Node JS Extractor
+name: Node JS Video Downloader
 
 on:
-  workflow_dispatch: # للتشغيل اليدوي
+  workflow_dispatch:
 
 jobs:
   run-extractor:
@@ -16,10 +16,9 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Install FFmpeg # إضافة هذه الخطوة ضرورية لدمج الفيديو
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      # خطوة مهمة جداً: تثبيت أداة التحميل في نظام التشغيل
       - name: Install yt-dlp
         run: |
           sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
@@ -27,3 +26,10 @@ jobs:
 
       - name: Run Script
         run: node index.js
+
+      # خطوة إضافية: لكي ترى الملف الناتج في GitHub وتستطيع تحميله
+      - name: Upload Video Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-video-file
+          path: video_to_upload.mp4
