@@ -15,21 +15,26 @@ jobs:
         with:
           node-version: '20'
 
+      # --- نظام الكاش السريع ---
       - name: Cache Node Modules
+        id: cache-npm
         uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package.json') }}
 
       - name: Install Dependencies
-        run: |
-          npm install --no-audit --no-fund
-          npx puppeteer browsers install chrome
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: npm install --no-audit --no-fund
+
+      # --- تثبيت المتصفح بطريقة خفيفة ---
+      - name: Install Chrome
+        run: npx puppeteer browsers install chrome
 
       - name: Run Facebook Uploader
         env:
           FACEBOOK_COOKIES: ${{ secrets.FACEBOOK_COOKIES }}
-        run: node facebook_upload.js # هنا التأكد من اسم الملف الصحيح
+        run: node facebook_upload.js
 
       - name: Upload Results
         if: always()
