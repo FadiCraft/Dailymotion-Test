@@ -1,60 +1,41 @@
-name: Kiro Zozo Multi-Platform Uploader
+name: Facebook Auto Post
 
 on:
-  workflow_dispatch: # تشغيل يدوي
+  workflow_dispatch:
 
 jobs:
   upload_job:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. جلب الكود
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. إعداد Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # 3. نظام الكاش الذكي للمكتبات
       - name: Cache Node Modules
-        id: cache-npm
         uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
 
-      # 4. تثبيت المكتبات والمتصفح (فقط إذا تغير الـ package.json)
       - name: Install Dependencies
         run: |
           npm install --no-audit --no-fund
           npx puppeteer browsers install chrome
 
-      # 5. تشغيل رفع تيك توك
-      - name: Run TikTok Uploader
-        env:
-          TIKTOK_COOKIES: ${{ secrets.TIKTOK_COOKIES }}
-        run: node upload.js
-
-      # 6. تشغيل رفع فيسبوك (Meta Business Suite)
       - name: Run Facebook Uploader
         env:
           FACEBOOK_COOKIES: ${{ secrets.FACEBOOK_COOKIES }}
-        run: node facebook_upload.js
+        run: node facebook_upload.js # هنا التأكد من اسم الملف الصحيح
 
-      # 7. حفظ النتائج والصور من المنصتين
-      - name: Upload Execution Reports
+      - name: Upload Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: upload-reports
+          name: facebook-report
           path: |
-            final-result.png
             facebook-final-check.png
-            error-screenshot.png
             facebook-error-log.png
-          retention-days: 3
