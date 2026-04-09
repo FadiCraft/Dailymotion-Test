@@ -1,0 +1,9 @@
+{
+  "name": "dailymotion-extractor",
+  "version": "1.0.0",
+  "description": "Extract direct link from Dailymotion",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
