@@ -1,32 +1,29 @@
 const { execSync } = require('child_process');
+const fs = require('fs');
 
-/**
- * وظيفة لاستخراج رابط الفيديو المباشر
- */
-function getDirectLink(videoUrl) {
+function downloadVideo(videoUrl) {
     try {
-        console.log(`جارِ تحليل الرابط: ${videoUrl}`);
+        console.log(`🚀 جاري معالجة الفيديو: ${videoUrl}`);
         
-        // تشغيل yt-dlp لجلب الرابط المباشر
-        // -g تعني جلب الرابط فقط
-        const command = `yt-dlp -g -f "best" ${videoUrl}`;
-        const directLink = execSync(command).toString().trim();
+        // اسم الملف الذي سيتم حفظه
+        const outputFilename = 'video_to_upload.mp4';
+
+        // استخدام yt-dlp لتحميل ودمج الفيديو في ملف mp4 واحد
+        // --merge-output-format mp4 تضمن أن النتيجة ملف واحد قابل للرفع
+        const command = `yt-dlp -f "bestvideo+bestaudio/best" --merge-output-format mp4 -o "${outputFilename}" ${videoUrl}`;
         
-        return directLink;
+        console.log("⏳ بدأت عملية التحميل والدمج (قد تستغرق دقيقة)...");
+        execSync(command);
+
+        if (fs.existsSync(outputFilename)) {
+            console.log(`✅ تم التحميل بنجاح! اسم الملف: ${outputFilename}`);
+            return outputFilename;
+        }
     } catch (error) {
-        console.error("خطأ في استخراج الرابط:", error.message);
+        console.error("❌ فشل التحميل:", error.message);
         return null;
     }
 }
 
-// الرابط المراد اختباره (يمكنك تغييره أو جعله متغيراً)
 const videoUrl = 'https://www.dailymotion.com/video/xa14x8k'; 
-
-const result = getDirectLink(videoUrl);
-
-if (result) {
-    console.log("-----------------------------------------");
-    console.log("✅ تم العثور على رابط التحميل المباشر:");
-    console.log(result);
-    console.log("-----------------------------------------");
-}
+downloadVideo(videoUrl);
